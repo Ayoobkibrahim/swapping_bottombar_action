@@ -82,6 +82,7 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
   late final List<T> _items = widget.items.toList();
   String _infoText = '';
   int? _draggingIndex;
+  int? _targetIndex;
   int? _hoveredIndex;
   int? _selectedIndex;
   bool _hoveringTaskbar = false;
@@ -97,10 +98,10 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
+                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -125,7 +126,7 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
             borderRadius: BorderRadius.circular(16),
             color: Colors.white.withOpacity(0.7)
           ),
-          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 10),
           child: MouseRegion(
             onEnter: (_) {
               setState(() {
@@ -145,12 +146,11 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                     (entry) {
                       int index = entry.key;
                       T item = entry.value;
-                      double archHeight = _hoveringTaskbar
+                       double archHeight = _hoveringTaskbar
                           ? -5.0 *
                               (1.0 - (index - (_items.length - 1) / 2).abs() /
                                   (_items.length / 2))
                           : 0.0;
-
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: MouseRegion(
@@ -169,21 +169,23 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                           child: DragTarget<int>(
                             onAcceptWithDetails: (details) {
                               setState(() {
-                                final draggedItem =
-                                    _items.removeAt(details.data);
+                                final draggedItem = _items.removeAt(details.data);
                                 _items.insert(index, draggedItem);
                                 _draggingIndex = null;
+                                _targetIndex = null;
                                 _infoText = widget.labels[index];
                               });
                             },
                             onWillAcceptWithDetails: (details) {
                               setState(() {
+                                _targetIndex = index;
                                 _infoText = ' ${widget.labels[index]}';
                               });
                               return true;
                             },
                             onLeave: (_) {
                               setState(() {
+                                _targetIndex = null;
                                 _infoText = '';
                               });
                             },
@@ -194,11 +196,21 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                               } else if (_hoveredIndex != null) {
                                 scale = 0.9;
                               }
-
+            
                               return AnimatedContainer(
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
-                                transform: Matrix4.translationValues(
+                                transform: (_draggingIndex != null &&
+                                        _targetIndex != null &&
+                                        _targetIndex == index &&
+                                        _draggingIndex != index)
+                                    ? Matrix4.translationValues(
+                                        20.0 *
+                                            ((_draggingIndex! < index) ? -1 : 1),
+                                        0,
+                                        0,
+                                      )
+                                    : Matrix4.translationValues(
                                   0,
                                   archHeight,
                                   0,
@@ -218,8 +230,7 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                                         color: Colors.transparent,
                                         child: widget.builder(item),
                                       ),
-                                      childWhenDragging:
-                                          const SizedBox.shrink(),
+                                      childWhenDragging: const SizedBox.shrink(),
                                       onDragStarted: () {
                                         setState(() {
                                           _draggingIndex = index;
@@ -230,12 +241,14 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                                       onDragCompleted: () {
                                         setState(() {
                                           _draggingIndex = null;
+                                          _targetIndex = null;
                                           _infoText = '';
                                         });
                                       },
                                       onDraggableCanceled: (_, __) {
                                         setState(() {
                                           _draggingIndex = null;
+                                          _targetIndex = null;
                                           _infoText = '';
                                         });
                                       },
