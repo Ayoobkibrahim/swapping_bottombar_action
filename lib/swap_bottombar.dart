@@ -98,10 +98,11 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: BackdropFilter(
-               filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                 decoration: BoxDecoration(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
@@ -123,10 +124,9 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white.withOpacity(0.7)
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 15,horizontal: 10),
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white.withOpacity(0.7)),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
           child: MouseRegion(
             onEnter: (_) {
               setState(() {
@@ -146,10 +146,11 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                     (entry) {
                       int index = entry.key;
                       T item = entry.value;
-                       double archHeight = _hoveringTaskbar
+                      double archHeight = _hoveringTaskbar
                           ? -5.0 *
-                              (1.0 - (index - (_items.length - 1) / 2).abs() /
-                                  (_items.length / 2))
+                              (1.0 -
+                                  (index - (_items.length - 1) / 2).abs() /
+                                      (_items.length / 2))
                           : 0.0;
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -169,7 +170,8 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                           child: DragTarget<int>(
                             onAcceptWithDetails: (details) {
                               setState(() {
-                                final draggedItem = _items.removeAt(details.data);
+                                final draggedItem =
+                                    _items.removeAt(details.data);
                                 _items.insert(index, draggedItem);
                                 _draggingIndex = null;
                                 _targetIndex = null;
@@ -196,7 +198,7 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                               } else if (_hoveredIndex != null) {
                                 scale = 0.9;
                               }
-            
+
                               return AnimatedContainer(
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
@@ -206,15 +208,17 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                                         _draggingIndex != index)
                                     ? Matrix4.translationValues(
                                         20.0 *
-                                            ((_draggingIndex! < index) ? -1 : 1),
+                                            ((_draggingIndex! < index)
+                                                ? -1
+                                                : 1),
                                         0,
                                         0,
                                       )
                                     : Matrix4.translationValues(
-                                  0,
-                                  archHeight,
-                                  0,
-                                ),
+                                        0,
+                                        archHeight,
+                                        0,
+                                      ),
                                 child: Transform.scale(
                                   scale: scale,
                                   child: BounceOnClick(
@@ -230,12 +234,13 @@ class _DockState<T> extends State<Dock<T>> with SingleTickerProviderStateMixin {
                                         color: Colors.transparent,
                                         child: widget.builder(item),
                                       ),
-                                      childWhenDragging: const SizedBox.shrink(),
+                                      childWhenDragging:
+                                          const SizedBox.shrink(),
                                       onDragStarted: () {
                                         setState(() {
                                           _draggingIndex = index;
                                           _infoText =
-                                              'Dragging: ${widget.labels[index]}';
+                                              ' ${widget.labels[index]}';
                                         });
                                       },
                                       onDragCompleted: () {
